@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import HTMLResponse
 from src.api.routes import router
 from src.config import config
 import os
@@ -36,12 +36,27 @@ if os.path.exists(config.UPLOAD_DIR):
 app.include_router(router)
 
 # Serve the web UI
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def read_root():
-    html_path = os.path.join(os.path.dirname(__file__), "..", "public", "index.html")
-    if os.path.exists(html_path):
-        return FileResponse(html_path)
-    return {"status": "online", "message": "Multi-Modal Intelligence Console API"}
+    try:
+        # Try to read the HTML file
+        html_path = os.path.join(os.path.dirname(__file__), "..", "public", "index.html")
+        if os.path.exists(html_path):
+            with open(html_path, 'r', encoding='utf-8') as f:
+                return f.read()
+    except Exception as e:
+        print(f"Could not load HTML: {e}")
+    
+    # Fallback to API response
+    return """
+    <html>
+        <body style="font-family: Arial; text-align: center; padding: 50px;">
+            <h1>Multi-Modal Intelligence Console API</h1>
+            <p>Status: Online ✓</p>
+            <p>Visit <a href="/docs">/docs</a> for API documentation</p>
+        </body>
+    </html>
+    """
 
 @app.get("/health")
 def health_check():
