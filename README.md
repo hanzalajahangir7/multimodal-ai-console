@@ -66,6 +66,3 @@ vercel
 └── data/            # Storage (uploads, DB)
 ```
 
-## License
-
-MIT
