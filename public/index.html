@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Modal Intelligence Console</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(45deg, #FF4B4B, #FF914D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #aaa;
+            font-size: 1.1rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+            backdrop-filter: blur(10px);
+        }
+
+        .tab:hover {
+            background: rgba(255, 75, 75, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, #FF4B4B, #FF914D);
+        }
+
+        .tab-content {
+            display: none;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"], textarea, select {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        input[type="file"] {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: #fff;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        button {
+            padding: 15px 40px;
+            background: linear-gradient(45deg, #FF4B4B, #FF914D);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 75, 75, 0.3);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .result {
+            background: rgba(0, 255, 136, 0.1);
+            border-left: 4px solid #00ff88;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+
+        .error {
+            background: rgba(255, 75, 75, 0.1);
+            border-left: 4px solid #FF4B4B;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top: 4px solid #FF4B4B;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(0, 255, 136, 0.2);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 Multi-Modal Intelligence Console</h1>
+            <p class="subtitle">Enterprise AI System <span class="status-badge" id="status">Checking...</span></p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('text')">📝 Text Analysis</button>
+            <button class="tab" onclick="showTab('image')">🖼️ Image Analysis</button>
+            <button class="tab" onclick="showTab('audio')">🎵 Audio Analysis</button>
+            <button class="tab" onclick="showTab('chat')">💬 AI Chat</button>
+        </div>
+
+        <!-- Text Analysis Tab -->
+        <div id="text" class="tab-content active">
+            <div class="card">
+                <h2>Text Intelligence</h2>
+                <textarea id="textInput" rows="6" placeholder="Enter your text here..."></textarea>
+                <select id="textTask">
+                    <option value="Summarize this text">Summarize</option>
+                    <option value="Extract key points">Extract Key Points</option>
+                    <option value="Analyze sentiment">Sentiment Analysis</option>
+                    <option value="Translate to Spanish">Translate to Spanish</option>
+                </select>
+                <button onclick="analyzeText()">Analyze Text</button>
+                <div id="textResult"></div>
+            </div>
+        </div>
+
+        <!-- Image Analysis Tab -->
+        <div id="image" class="tab-content">
+            <div class="card">
+                <h2>Image Analysis</h2>
+                <input type="file" id="imageFile" accept="image/*">
+                <input type="text" id="imagePrompt" placeholder="What would you like to know about this image?" value="Describe this image in detail">
+                <button onclick="analyzeImage()">Analyze Image</button>
+                <div id="imageResult"></div>
+            </div>
+        </div>
+
+        <!-- Audio Analysis Tab -->
+        <div id="audio" class="tab-content">
+            <div class="card">
+                <h2>Audio Analysis</h2>
+                <input type="file" id="audioFile" accept="audio/*">
+                <button onclick="analyzeAudio()">Transcribe & Analyze</button>
+                <div id="audioResult"></div>
+            </div>
+        </div>
+
+        <!-- Chat Tab -->
+        <div id="chat" class="tab-content">
+            <div class="card">
+                <h2>AI Chat</h2>
+                <p style="color: #aaa; margin-bottom: 15px;">Context-aware conversations with memory</p>
+                <div id="chatMessages" style="max-height: 400px; overflow-y: auto; margin-bottom: 20px;"></div>
+                <input type="text" id="chatInput" placeholder="Ask me anything..." onkeypress="if(event.key==='Enter') sendChat()">
+                <button onclick="sendChat()">Send Message</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        let currentSessionId = null;
+
+        // Check API status
+        async function checkStatus() {
+            try {
+                const response = await fetch(`${API_URL}/health`);
+                const data = await response.json();
+                document.getElementById('status').textContent = '✓ Online';
+                document.getElementById('status').style.background = 'rgba(0, 255, 136, 0.2)';
+            } catch (error) {
+                document.getElementById('status').textContent = '✗ Offline';
+                document.getElementById('status').style.background = 'rgba(255, 75, 75, 0.2)';
+            }
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        async function analyzeText() {
+            const text = document.getElementById('textInput').value;
+            const instruction = document.getElementById('textTask').value;
+            const resultDiv = document.getElementById('textResult');
+
+            if (!text) {
+                resultDiv.innerHTML = '<div class="error">Please enter some text</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Processing...</div>';
+
+            try {
+                const response = await fetch(`${API_URL}/analyze/text`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text, instruction })
+                });
+
+                const data = await response.json();
+                resultDiv.innerHTML = `<div class="result"><strong>Result:</strong><br>${data.result}</div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function analyzeImage() {
+            const fileInput = document.getElementById('imageFile');
+            const prompt = document.getElementById('imagePrompt').value;
+            const resultDiv = document.getElementById('imageResult');
+
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '<div class="error">Please select an image</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Analyzing image...</div>';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            formData.append('prompt', prompt);
+
+            try {
+                const response = await fetch(`${API_URL}/analyze/image`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                resultDiv.innerHTML = `<div class="result"><strong>Analysis:</strong><br>${data.analysis}</div>`;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function analyzeAudio() {
+            const fileInput = document.getElementById('audioFile');
+            const resultDiv = document.getElementById('audioResult');
+
+            if (!fileInput.files[0]) {
+                resultDiv.innerHTML = '<div class="error">Please select an audio file</div>';
+                return;
+            }
+
+            resultDiv.innerHTML = '<div class="loading"><div class="spinner"></div>Transcribing audio...</div>';
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            try {
+                const response = await fetch(`${API_URL}/analyze/audio`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <div class="result">
+                        <strong>Transcript:</strong><br>${data.transcript}<br><br>
+                        <strong>Analysis:</strong><br>${data.analysis}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        async function initChat() {
+            if (!currentSessionId) {
+                try {
+                    const response = await fetch(`${API_URL}/chat/sessions`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ title: 'Web Chat Session' })
+                    });
+                    const data = await response.json();
+                    currentSessionId = data.session_id;
+                } catch (error) {
+                    console.error('Failed to create session:', error);
+                }
+            }
+        }
+
+        async function sendChat() {
+            await initChat();
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            const messagesDiv = document.getElementById('chatMessages');
+
+            if (!message) return;
+
+            // Add user message
+            messagesDiv.innerHTML += `<div class="card" style="background: rgba(255, 75, 75, 0.1);"><strong>You:</strong> ${message}</div>`;
+            input.value = '';
+
+            // Show loading
+            messagesDiv.innerHTML += '<div class="loading"><div class="spinner"></div></div>';
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+            try {
+                const response = await fetch(`${API_URL}/chat/message`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_id: currentSessionId, message })
+                });
+
+                const data = await response.json();
+                
+                // Remove loading
+                messagesDiv.querySelector('.loading').remove();
+                
+                // Add AI response
+                messagesDiv.innerHTML += `<div class="card" style="background: rgba(0, 255, 136, 0.1);"><strong>AI:</strong> ${data.response}</div>`;
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            } catch (error) {
+                messagesDiv.querySelector('.loading').remove();
+                messagesDiv.innerHTML += `<div class="error">Error: ${error.message}</div>`;
+            }
+        }
+
+        // Initialize
+        checkStatus();
+        setInterval(checkStatus, 30000); // Check every 30 seconds
+    </script>
+</body>
+</html>

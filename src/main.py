@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from src.api.routes import router
 from src.config import config
 import os
@@ -34,8 +35,12 @@ if os.path.exists(config.UPLOAD_DIR):
 # Include API routes
 app.include_router(router)
 
+# Serve the web UI
 @app.get("/")
 def read_root():
+    html_path = os.path.join(os.path.dirname(__file__), "..", "public", "index.html")
+    if os.path.exists(html_path):
+        return FileResponse(html_path)
     return {"status": "online", "message": "Multi-Modal Intelligence Console API"}
 
 @app.get("/health")
