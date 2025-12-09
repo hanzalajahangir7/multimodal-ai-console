@@ -62,6 +62,17 @@ def read_root():
 def health_check():
     return {"status": "healthy", "environment": "vercel" if config.IS_VERCEL else "local"}
 
+@app.get("/debug")
+def debug_info():
+    """Debug endpoint to check configuration"""
+    return {
+        "openai_key_set": bool(config.OPENAI_API_KEY),
+        "openai_key_length": len(config.OPENAI_API_KEY) if config.OPENAI_API_KEY else 0,
+        "database_url": config.DATABASE_URL,
+        "upload_dir": config.UPLOAD_DIR,
+        "is_vercel": config.IS_VERCEL
+    }
+
 # For local development
 if __name__ == "__main__":
     import uvicorn
