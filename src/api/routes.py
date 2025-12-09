@@ -99,8 +99,15 @@ def get_sessions(db: Session = Depends(get_db)):
 
 @router.post("/chat/message")
 async def chat_message(request: ChatRequest, db: Session = Depends(get_db)):
-    response = await ChatService.get_response(request.session_id, request.message, db)
-    return {"response": response}
+    try:
+        response = await ChatService.get_response(request.session_id, request.message, db)
+        return {"response": response}
+    except Exception as e:
+        import traceback
+        error_detail = str(e)
+        print(f"Chat error: {error_detail}")
+        print(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=f"Chat error: {error_detail}")
 
 @router.get("/chat/history/{session_id}")
 def get_history(session_id: int, db: Session = Depends(get_db)):
