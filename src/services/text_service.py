@@ -1,8 +1,9 @@
-from src.utils.llm import aclient
+from src.utils.llm import get_aclient
 
 class TextService:
     @staticmethod
     async def analyze_text(text: str, instruction: str):
+        aclient = get_aclient()
         response = await aclient.chat.completions.create(
             model="gpt-4o",
             messages=[
@@ -14,6 +15,7 @@ class TextService:
 
     @staticmethod
     async def generate_json(text: str, schema_description: str):
+        aclient = get_aclient()
         response = await aclient.chat.completions.create(
             model="gpt-4o",
             response_format={ "type": "json_object" },

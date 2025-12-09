@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from src.models.models import ChatSession, ChatMessage
 from src.db.vector_store import vector_store
-from src.utils.llm import aclient
+from src.utils.llm import get_aclient
 import json
 
 class ChatService:
@@ -29,6 +29,7 @@ class ChatService:
         messages.append({"role": "user", "content": user_query})
         
         # 4. Call LLM
+        aclient = get_aclient()
         response = await aclient.chat.completions.create(
             model="gpt-4o",
             messages=messages

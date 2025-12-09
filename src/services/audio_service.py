@@ -1,9 +1,10 @@
-from src.utils.llm import aclient
+from src.utils.llm import get_aclient
 import os
 
 class AudioService:
     @staticmethod
     async def transcribe_audio(file_path: str):
+        aclient = get_aclient()
         with open(file_path, "rb") as audio_file:
             transcript = await aclient.audio.transcriptions.create(
                 model="whisper-1", 
@@ -28,6 +29,7 @@ class AudioService:
         5. Speaker identification clues (if apparent).
         """
         
+        aclient = get_aclient()
         response = await aclient.chat.completions.create(
             model="gpt-4o",
             messages=[

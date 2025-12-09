@@ -1,5 +1,5 @@
 import base64
-from src.utils.llm import aclient
+from src.utils.llm import get_aclient
 
 async def encode_image(image_path):
     with open(image_path, "rb") as image_file:
@@ -10,6 +10,7 @@ class ImageService:
     async def analyze_image(image_path: str, prompt: str = "Analyze this image in detail."):
         base64_image = await encode_image(image_path)
         
+        aclient = get_aclient()
         response = await aclient.chat.completions.create(
             model="gpt-4o", 
             messages=[
